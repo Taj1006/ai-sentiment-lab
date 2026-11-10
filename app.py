@@ -1,27 +1,30 @@
 import streamlit as st
-from textblob import TextBlob
 
-st.set_page_config(page_title="My AI Lab", page_icon=":brain:")
+from sentiment import analyze_text
 
-st.title(":brain: AI for Sentiment Analysis (CD TEST v1)")
-st.write("Enter an English message in the box below, and AI will determine whether it's Positive or Negative.")
+st.set_page_config(page_title="Sentiment Analysis Lab", page_icon=":brain:")
+st.title(":brain: English Sentiment Analysis")
+st.write("Explore positive, negative, or neutral polarity with TextBlob's built-in analyzer. No model is trained by this app.")
 
 text_input = st.text_area("Input Text (English only):", height=150)
 
 if st.button("Analyze"):
-    if text_input:
-        blob = TextBlob(text_input)
-        score = blob.sentiment.polarity
-
-        st.divider()
-        st.subheader("Analysis Results:")
-
-        if score > 0:
-            st.success(f":blush: Positive (Score: {score:.2f})")
-            st.balloons()
-        elif score < 0:
-            st.error(f":rage: Negative (Score: {score:.2f})")
+    if text_input.strip():
+        try:
+            score, label = analyze_text(text_input)
+        except Exception:
+            # Do not display submitted text or internal exception details.
+            st.error("Analysis is unavailable. Please try again or check the local installation.")
         else:
-            st.info(f":neutral_face: Neutral (Score: {score:.2f})")
+            st.divider()
+            st.subheader("Analysis Results:")
+
+            if label == "Positive":
+                st.success(f":blush: Positive (Score: {score:.2f})")
+                st.balloons()
+            elif label == "Negative":
+                st.error(f":rage: Negative (Score: {score:.2f})")
+            else:
+                st.info(f":neutral_face: Neutral (Score: {score:.2f})")
     else:
         st.warning("Please type a message before pressing the button!")
